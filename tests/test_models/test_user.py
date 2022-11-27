@@ -1,70 +1,53 @@
 #!/usr/bin/python3
-"""Tests city"""
+"""Unittest module for the User Class."""
+
 import unittest
-import pep8
-import os
+from datetime import datetime
+import time
 from models.user import User
+import re
+import json
+from models.engine.file_storage import FileStorage
+import os
+from models import storage
 from models.base_model import BaseModel
 
 
-class TestCity(unittest.TestCase):
-    """unittests for basemodel"""
+class TestUser(unittest.TestCase):
 
-    @classmethod
-    def setUp(cls):
-        """creates class"""
-        cls.testUser = User()
-        cls.testUser.email = "email"
-        cls.testUser.password = "xxx"
-        cls.testUser.first_name = "first"
-        cls.testUser.last_name = "last"
+    """Test Cases for the User class."""
 
-    @classmethod
-    def tearDown(cls):
-        """deletes test class"""
-        del cls.testUser
-        try:
-            os.remove("file.json")
-        except FileNotFoundError:
-            pass
+    def setUp(self):
+        """Sets up test methods."""
+        pass
 
-    def test_pep8(self):
-        """tests pep8"""
-        style = pep8.StyleGuide(quiet=True)
-        p = style.check_files(['models/user.py'])
-        self.assertEqual(p.total_errors, 0, "fix pep8")
+    def tearDown(self):
+        """Tears down test methods."""
+        self.resetStorage()
+        pass
 
-    def test_docstrings(self):
-        """tests docstrings"""
-        self.assertTrue(len(User.__doc__) > 0)
-        for func in dir(User):
-            self.assertTrue(len(func.__doc__) > 0)
+    def resetStorage(self):
+        """Resets FileStorage data."""
+        FileStorage._FileStorage__objects = {}
+        if os.path.isfile(FileStorage._FileStorage__file_path):
+            os.remove(FileStorage._FileStorage__file_path)
 
-    def test_init_and_class_variables(self):
-        """tests init and class variables"""
-        self.assertTrue(isinstance(self.testUser, User))
-        self.assertTrue(issubclass(type(self.testUser), BaseModel))
-        self.assertTrue('email' in self.testUser.__dict__)
-        self.assertTrue('id' in self.testUser.__dict__)
-        self.assertTrue('created_at' in self.testUser.__dict__)
-        self.assertTrue('updated_at' in self.testUser.__dict__)
-        self.assertTrue('password' in self.testUser.__dict__)
-        self.assertTrue('first_name' in self.testUser.__dict__)
-        self.assertTrue('last_name' in self.testUser.__dict__)
+    def test_8_instantiation(self):
+        """Tests instantiation of User class."""
 
-    def test_save(self):
-        self.testUser.save()
-        self.assertTrue(self.testUser.updated_at != self.testUser.created_at)
+        b = User()
+        self.assertEqual(str(type(b)), "<class 'models.user.User'>")
+        self.assertIsInstance(b, User)
+        self.assertTrue(issubclass(type(b), BaseModel))
 
-    def test_strings(self):
-        self.assertEqual(type(self.testUser.email), str)
-        self.assertEqual(type(self.testUser.password), str)
-        self.assertEqual(type(self.testUser.first_name), str)
-        self.assertEqual(type(self.testUser.first_name), str)
-
-    def test_to_dict(self):
-        self.assertEqual('to_dict' in dir(self.testUser), True)
+    def test_8_attributes(self):
+        """Tests the attributes of User class."""
+        attributes = storage.attributes()["User"]
+        o = User()
+        for k, v in attributes.items():
+            self.assertTrue(hasattr(o, k))
+            self.assertEqual(type(getattr(o, k, None)), v)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

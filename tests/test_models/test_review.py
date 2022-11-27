@@ -1,73 +1,52 @@
 #!/usr/bin/python3
-"""tests for class review"""
+"""Unittest module for the Review Class."""
+
 import unittest
-import os
+from datetime import datetime
+import time
 from models.review import Review
+import re
+import json
+from models.engine.file_storage import FileStorage
+import os
+from models import storage
 from models.base_model import BaseModel
-import pep8
 
 
 class TestReview(unittest.TestCase):
-    """test for review class"""
 
-    @classmethod
-    def setUpClass(cls):
-        """set up before functions"""
-        cls.newreview = Review()
-        cls.newreview.place_id = "7272728"
-        cls.newreview.user_id = "Lul"
-        cls.newreview.text = "Place is meh"
+    """Test Cases for the Review class."""
 
-    @classmethod
-    def teardown(cls):
-        """teardown"""
-        del cls.newreview
+    def setUp(self):
+        """Sets up test methods."""
+        pass
 
     def tearDown(self):
-        """teardown"""
-        try:
-            os.remove("file.json")
-        except:
-            pass
+        """Tears down test methods."""
+        self.resetStorage()
+        pass
 
-    def test_pep8_review(self):
-        """tests pep8"""
-        style = pep8.StyleGuide(quiet=True)
-        p = style.check_files(['models/review.py'])
-        self.assertEqual(p.total_errors, 0, "fix pep8")
+    def resetStorage(self):
+        """Resets FileStorage data."""
+        FileStorage._FileStorage__objects = {}
+        if os.path.isfile(FileStorage._FileStorage__file_path):
+            os.remove(FileStorage._FileStorage__file_path)
 
-    def test_docstring_review(self):
-        """test for docstring"""
-        self.assertIsNotNone(Review.__doc__)
+    def test_8_instantiation(self):
+        """Tests instantiation of Review class."""
 
-    def test_attributes_review(self):
-        """checking instance attributes"""
-        self.assertTrue('id' in self.newreview.__dict__)
-        self.assertTrue('created_at' in self.newreview.__dict__)
-        self.assertTrue('updated_at' in self.newreview.__dict__)
-        self.assertTrue('place_id' in self.newreview.__dict__)
-        self.assertTrue('text' in self.newreview.__dict__)
-        self.assertTrue('user_id' in self.newreview.__dict__)
+        b = Review()
+        self.assertEqual(str(type(b)), "<class 'models.review.Review'>")
+        self.assertIsInstance(b, Review)
+        self.assertTrue(issubclass(type(b), BaseModel))
 
-    def test_subclass_review(self):
-        """test for inheritance"""
-        self.assertTrue(issubclass(self.newreview.__class__, BaseModel), True)
-
-    def test_attr_types_review(self):
-        """test attribute type in instance"""
-        self.assertEqual(type(self.newreview.text), str)
-        self.assertEqual(type(self.newreview.place_id), str)
-        self.assertEqual(type(self.newreview.user_id), str)
-
-    def test_save(self):
-        """test save function"""
-        self.newreview.save()
-        self.assertNotEqual(self.newreview.created_at,
-                            self.newreview.updated_at)
-
-    def test_to_dict(self):
-        """test dictionary is there"""
-        self.assertEqual('to_dict' in dir(self.newreview), True)
+    def test_8_attributes(self):
+        """Tests the attributes of Review class."""
+        attributes = storage.attributes()["Review"]
+        o = Review()
+        for k, v in attributes.items():
+            self.assertTrue(hasattr(o, k))
+            self.assertEqual(type(getattr(o, k, None)), v)
 
 
 if __name__ == "__main__":

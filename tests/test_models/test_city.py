@@ -1,57 +1,53 @@
 #!/usr/bin/python3
-"""Tests city"""
+"""Unittest module for the City Class."""
+
 import unittest
-import pep8
-import os
+from datetime import datetime
+import time
 from models.city import City
+import re
+import json
+from models.engine.file_storage import FileStorage
+import os
+from models import storage
 from models.base_model import BaseModel
 
 
 class TestCity(unittest.TestCase):
-    """unittests for basemodel"""
 
-    @classmethod
-    def setUp(cls):
-        """creates class"""
-        cls.testCity = City()
-        cls.testCity.name = "test"
-        cls.testCity.state_id = "T"
+    """Test Cases for the City class."""
 
-    @classmethod
-    def tearDown(cls):
-        """deletes test class"""
-        del cls.testCity
-        try:
-            os.remove("file.json")
-        except FileNotFoundError:
-            pass
+    def setUp(self):
+        """Sets up test methods."""
+        pass
 
-    def test_pep8_city(self):
-        """tests pep8"""
-        style = pep8.StyleGuide(quiet=True)
-        p = style.check_files(['models/city.py'])
-        self.assertEqual(p.total_errors, 0, "fix pep8")
+    def tearDown(self):
+        """Tears down test methods."""
+        self.resetStorage()
+        pass
 
-    def test_docstrings_city(self):
-        """tests docstrings"""
-        self.assertTrue(len(City.__doc__) > 0)
-        for func in dir(City):
-            self.assertTrue(len(func.__doc__) > 0)
+    def resetStorage(self):
+        """Resets FileStorage data."""
+        FileStorage._FileStorage__objects = {}
+        if os.path.isfile(FileStorage._FileStorage__file_path):
+            os.remove(FileStorage._FileStorage__file_path)
 
-    def test_init_and_class_variables_city(self):
-        """tests init and class variables"""
-        self.assertTrue(isinstance(self.testCity, City))
-        self.assertTrue(issubclass(type(self.testCity), BaseModel))
-        self.assertTrue(self.testCity.name == "test")
-        self.assertTrue(self.testCity.state_id == "T")
-        self.assertIsNotNone(self.testCity.id)
-        self.assertIsNotNone(self.testCity.updated_at)
-        self.assertIsNotNone(self.testCity.created_at)
+    def test_8_instantiation(self):
+        """Tests instantiation of City class."""
 
-    def test_save_city(self):
-        self.testCity.save()
-        self.assertTrue(self.testCity.updated_at != self.testCity.created_at)
+        b = City()
+        self.assertEqual(str(type(b)), "<class 'models.city.City'>")
+        self.assertIsInstance(b, City)
+        self.assertTrue(issubclass(type(b), BaseModel))
+
+    def test_8_attributes(self):
+        """Tests the attributes of City class."""
+        attributes = storage.attributes()["City"]
+        o = City()
+        for k, v in attributes.items():
+            self.assertTrue(hasattr(o, k))
+            self.assertEqual(type(getattr(o, k, None)), v)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
